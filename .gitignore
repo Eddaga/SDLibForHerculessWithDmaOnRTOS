@@ -1,0 +1,9 @@
+﻿.launches
+.settings
+Debug
+targetConfigs
+.ccsproject
+*.cproject
+*.dil
+*.hcg
+*.project
