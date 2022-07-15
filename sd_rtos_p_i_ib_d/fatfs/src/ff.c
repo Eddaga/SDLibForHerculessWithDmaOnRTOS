@@ -699,7 +699,7 @@ FRESULT dec_lock (	/* Decrement file open counter */
 		if (n) n--;
 		Files[i].ctr = n;
 		if (!n) Files[i].fs = 0;
-		res = FR_OK;
+		res = FR_OK;FR_INVALID_NAME
 	} else {
 		res = FR_INT_ERR;
 	}
@@ -4323,3 +4323,29 @@ int f_printf (
 
 #endif /* !_FS_READONLY */
 #endif /* _USE_STRFUNC */
+
+/*add long name support function*/  // 220701 kyu add
+WCHAR ff_convert (WCHAR wch, UINT dir)
+{
+          if (wch < 0x80) {
+                    /* ASCII Char */
+                    return wch;
+          }
+
+          /* I don't support unicode it is too big! */
+          return 0;
+}
+
+WCHAR ff_wtoupper (WCHAR wch)
+{
+          if (wch < 0x80) {
+                    /* ASCII Char */
+                    if (wch >= 'a' && wch <= 'z') {
+                              wch &= ~0x20;
+                     }
+                      return wch;
+          }
+
+          /* I don't support unicode it is too big! */
+          return 0;
+}

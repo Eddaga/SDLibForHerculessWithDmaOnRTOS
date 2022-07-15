@@ -821,8 +821,8 @@ int cmdWrite(char* writeFileName, char* bufToWrite, int bytesToWrite, int overWr
 
     if(overWrite == 0)
     {
-        iFResult = f_lseek(&g_sFileObject, f_size(&g_sFileObject) ); // 그냥 lseek로 움직이든가, FATfs를 최신버전 다운받든가 해야함. 최신버전에는 APPEND 있음.
-        if(iFResult != FR_OK)                                   // 실패하면 왜실패했는지 알려주고
+        iFResult = f_lseek(&g_sFileObject, f_size(&g_sFileObject) );
+        if(iFResult != FR_OK)
         {
             UARTprintf("error here flseek %d\r\n",(int)iFResult);
             return((int)iFResult);

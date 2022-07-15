@@ -58,6 +58,8 @@
 
 #include "spi.h"
 #include "sci.h"
+#include "string.h"
+#include "sys_core.h"
 /* USER CODE END */
 
 /** @fn void main(void)
@@ -76,18 +78,8 @@ extern int cmdWrite(char* writeFileName, void* bufToWrite, int bytesToWrite, int
 
 void vSDTimerTask(void *pvParameters)
 {
-    int i = 0 ;
     while(1)
     {
-        if(i < 10)
-        {
-            i++;
-        }
-        else
-        {
-            i++;
-            i = i % 20;
-        }
         disk_timerproc();
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
@@ -102,18 +94,20 @@ char a[4096];
 void vSDTestTask(void *pvParameters)
 {
     cmdMount();
-    char path[50] = "BLKtest.txt";
+    char path[20] = "SPEEDTES.TXT";
 
     int i = 0;
     for(i = 0 ; i < 4096 ; i++)
     {
         a[i] = 'a';
     }
+
     i = 0;
-    for(i = 0 ; i < 100 ; i++)
+
+    for(i = 0 ; i < 200 ; i++)
     {
-        //Cmd_ls(dummy1, dummyargv);
         while(0 != cmdWrite(path,a,sizeof(a),NONAPPENDMODE));
+        //cmdWrite(path,a,sizeof(a),NONAPPENDMODE);
         //Cmd_ls(dummy1, dummyargv);
     }
 
@@ -124,6 +118,16 @@ void vSDTestTask(void *pvParameters)
 
 
     }
+}
+
+void vidleTask(void *pvParameters)
+{
+
+}
+
+void vHighestTask(void * pvParameters)
+{
+
 }
 
 xTaskHandle xSDTimerTaskHandle;
@@ -138,14 +142,20 @@ int main(void)
 
 
     sciInit();
+    gioInit();
     spiInit();
-    kyuSpiInit();
+    //kyuSpiInit();
+    _enable_interrupt_();
 
     UARTprintf("System Ready to Start!\r\n");
 
-    xTaskCreate(vSDTimerTask,"SDTimerTask",configMINIMAL_STACK_SIZE,NULL,5,&xSDTimerTaskHandle);
+    vTraceEnable(TRC_START);
+
+
+    xTaskCreate(vSDTimerTask,"SDTimerTask",configMINIMAL_STACK_SIZE,NULL,4,&xSDTimerTaskHandle);
     #if MODE != MODE_DMA
-    xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,4,&xSDTestTaskHandle);
+    //xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,3,&xSDTestTaskHandle);
+    xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,3 | portPRIVILEGE_BIT,&xSDTestTaskHandle);
     #else
     xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,4 | portPRIVILEGE_BIT ,&xSDTestTaskHandle);  // DMA REGs need privilege mode.
     #endif
