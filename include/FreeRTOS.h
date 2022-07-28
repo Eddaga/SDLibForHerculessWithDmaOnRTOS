@@ -346,7 +346,7 @@ extern "C" {
 #ifndef traceTASK_SWITCHED_IN
 	/* Called after a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the selected task. */
-	#define traceTASK_SWITCHED_IN()
+	#define traceTASK_SWITCHED_IN() kyuTraceTaskSwitchedIn()
 #endif
 
 #ifndef traceINCREASE_TICK_COUNT

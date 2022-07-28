@@ -75,97 +75,133 @@
 extern int cmdMount();
 extern int Cmd_ls(int argc, char *argv[]);
 extern int cmdWrite(char* writeFileName, void* bufToWrite, int bytesToWrite, int overWrite);
+extern int speedTestOpen(char* writeFileName, int overWrite);
+extern int speedTestWrite(char* bufToWrite, int bytesToWrite, unsigned int* ui32BytesWrite );
+extern int speedTestClose();
 
 void vSDTimerTask(void *pvParameters)
 {
+
     while(1)
     {
+
         disk_timerproc();
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
+
 }
 
 #define APPENDMODE 0
 #define NONAPPENDMODE 1
 int dummy1 = 0;
 char *dummyargv[];
-char a[4096];
+char a[2048];
+char path[20] = "SPEEDTES.TXT";
+
+//void vSDTestTask(void *pvParameters)
+//{
+//    Cmd_ls(dummy1,dummyargv);
+//    while(1)
+//    {
+//        while(0 != cmdWrite(path,a,sizeof(a),NONAPPENDMODE));
+//    }
+//
+//}
 
 void vSDTestTask(void *pvParameters)
 {
-    cmdMount();
-    char path[20] = "SPEEDTES.TXT";
+    int i  = 0;
+    unsigned int writtenBytesNum;
+    TickType_t start, done;
+    TickType_t xLastWakeTime;
+    const TickType_t xFrequency = 50;
 
-    int i = 0;
-    for(i = 0 ; i < 4096 ; i++)
+
+
+
+
+
+    speedTestOpen(path,NONAPPENDMODE);
+    spiREG3->PC3 &= ~(0x02);
+
+
+    xLastWakeTime = xTaskGetTickCount();
+
+
+    while(i < 5)
     {
-        a[i] = 'a';
+        //start = xTaskGetTickCount();
+
+        //spiREG3->PC3 = spiREG3->PC3 ^ (1 << 1);
+        while(0 != speedTestWrite(a,sizeof(a),&writtenBytesNum));
+
+        //done = xTaskGetTickCount();
+        //UARTprintf("%d, %d, %d ms\r\n",(int)start, (int)done, (int)pdMS_TO_TICKS(done-start));
+
+        i++;
+
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
-
-    i = 0;
-
-    for(i = 0 ; i < 200 ; i++)
-    {
-        while(0 != cmdWrite(path,a,sizeof(a),NONAPPENDMODE));
-        //cmdWrite(path,a,sizeof(a),NONAPPENDMODE);
-        //Cmd_ls(dummy1, dummyargv);
-    }
-
-    Cmd_ls(dummy1,dummyargv);
-
-    while(1)
-    {
+    spiREG3->PC3 |= 0x02;
 
 
-    }
+    speedTestClose();
+    spiREG3->PC3 &= ~(0x02);
+
+    //Cmd_ls(dummy1,dummyargv);
+    while(1);
+
 }
 
-void vidleTask(void *pvParameters)
-{
+//void vHighestTask(void *pvParameters)
+//{
+//    while(1)
+//    {
+//
+//    }
+//}
 
-}
-
-void vHighestTask(void * pvParameters)
-{
-
-}
 
 xTaskHandle xSDTimerTaskHandle;
 xTaskHandle xSDTestTaskHandle;
-
+//xTaskHandle xHightestTaskHandle;
 
 /* USER CODE END */
 
 int main(void)
 {
 /* USER CODE BEGIN (3) */
-
+    int i = 0;
+    for(i = 0 ; i < sizeof(a) ; i++)
+    {
+        a[i] = 'a';
+    }
 
     sciInit();
     gioInit();
     spiInit();
+
+
     //kyuSpiInit();
     _enable_interrupt_();
+    cmdMount();
 
     UARTprintf("System Ready to Start!\r\n");
 
-    vTraceEnable(TRC_START);
-
-
-    xTaskCreate(vSDTimerTask,"SDTimerTask",configMINIMAL_STACK_SIZE,NULL,4,&xSDTimerTaskHandle);
+    xTaskCreate(vSDTimerTask,"SDTimerTask",configMINIMAL_STACK_SIZE,NULL,3,&xSDTimerTaskHandle);
     #if MODE != MODE_DMA
     //xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,3,&xSDTestTaskHandle);
-    xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,3 | portPRIVILEGE_BIT,&xSDTestTaskHandle);
+    xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,1 | portPRIVILEGE_BIT,&xSDTestTaskHandle);
     #else
-    xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,4 | portPRIVILEGE_BIT ,&xSDTestTaskHandle);  // DMA REGs need privilege mode.
+    xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,1 | portPRIVILEGE_BIT ,&xSDTestTaskHandle);  // DMA REGs need privilege mode.
     #endif
-
+    spiREG3->PC3 |= 0x02;
     vTaskStartScheduler();
 
     while(1);
 /* USER CODE END */
 
-    return 0;
+    //return 0;
 }
 
 

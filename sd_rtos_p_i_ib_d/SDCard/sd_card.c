@@ -796,8 +796,8 @@ int cmdMount()
 
 int cmdWrite(char* writeFileName, char* bufToWrite, int bytesToWrite, int overWrite)
 {
-    TickType_t start, done;
-    start = xTaskGetTickCount();
+    //TickType_t start, done;
+    //start = xTaskGetTickCount();
 
     /* Values */
     FRESULT iFResult;
@@ -831,7 +831,7 @@ int cmdWrite(char* writeFileName, char* bufToWrite, int bytesToWrite, int overWr
 
     /* Write Bytes */
     iFResult = f_write(&g_sFileObject, (const void*)bufToWrite, bytesToWrite,(UINT *)&ui32BytesWrite);
-    f_close(&g_sFileObject);
+
     if(iFResult != FR_OK)
     {
         UARTprintf("error here fwrite %d\r\n",(int)iFResult);
@@ -845,7 +845,71 @@ int cmdWrite(char* writeFileName, char* bufToWrite, int bytesToWrite, int overWr
         return((int)iFResult);
     }
 
-    done = xTaskGetTickCount();
-    UARTprintf("it takes %d ms.\r\n", (int)pdMS_TO_TICKS(done-start));
+    //done = xTaskGetTickCount();
+    //UARTprintf("%d ms\r\n", (int)pdMS_TO_TICKS(done-start));
     return(0);
+}
+
+int speedTestOpen(char* writeFileName, int overWrite)
+{
+    FRESULT iFResult;
+
+    /* Set File Path */
+    strcpy(g_pcTmpBuf, g_pcCwdBuf);
+    if(strcmp("/", g_pcCwdBuf))
+    {
+        strcat(g_pcTmpBuf, "/");
+    }
+    strcat(g_pcTmpBuf,writeFileName);
+
+    /* Open File and Set for FilePointer*/
+    iFResult = f_open(&g_sFileObject, g_pcTmpBuf,  FA_WRITE | FA_OPEN_ALWAYS);
+    if(iFResult != FR_OK)
+    {
+        UARTprintf("error here fopen %d\r\n",(int)iFResult);
+        return((int)iFResult);
+    }
+
+    if(overWrite == 0)
+    {
+        iFResult = f_lseek(&g_sFileObject, f_size(&g_sFileObject) );
+        if(iFResult != FR_OK)
+        {
+            UARTprintf("error here flseek %d\r\n",(int)iFResult);
+            return((int)iFResult);
+        }
+    }
+    return 0;
+}
+
+int speedTestWrite(char* bufToWrite, int bytesToWrite, unsigned int* ui32BytesWrite )
+{
+    FRESULT iFResult;
+
+    /* Write Bytes */
+    //return (int)f_write(&g_sFileObject, (const void*)bufToWrite, bytesToWrite,(UINT *)ui32BytesWrite);
+    iFResult = f_write(&g_sFileObject, (const void*)bufToWrite, bytesToWrite,(UINT *)ui32BytesWrite);
+    if(iFResult != FR_OK)
+    {
+        UARTprintf("error here fwrite %d\r\n",(int)iFResult);
+        return((int)iFResult);
+    }
+    return 0;
+
+}
+
+int speedTestClose()
+{
+    FRESULT iFResult;
+
+    /* Close File */
+    iFResult = f_close(&g_sFileObject);
+
+    if(iFResult != FR_OK)
+    {
+        UARTprintf("error here close %d\r\n",(int)iFResult);
+        return((int)iFResult);
+    }
+    return 0;
+
 }

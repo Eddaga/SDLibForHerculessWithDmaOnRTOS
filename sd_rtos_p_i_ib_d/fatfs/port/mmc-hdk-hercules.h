@@ -13,7 +13,7 @@
 #define MODE_INTERRUPT_BLOCK 3
 #define MODE_DMA 4
 
-#define MODE 3
+#define MODE 1
 
 
 #include "FreeRTOS.h"
