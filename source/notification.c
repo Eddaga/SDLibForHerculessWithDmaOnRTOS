@@ -165,6 +165,7 @@ void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel)
 {
 /*  enter user code between the USER CODE BEGIN and USER CODE END. */
 /* USER CODE BEGIN (54) */
+    spiREG1->PC3 = 0xFF;
     BaseType_t ifTaskSChed = 0;
     xTaskNotifyFromISR(dmaTaskHandle, 0,eSetValueWithOverwrite,&ifTaskSChed);
 

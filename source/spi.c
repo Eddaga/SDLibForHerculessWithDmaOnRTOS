@@ -239,7 +239,7 @@ void spiInit(void)
                     | (uint32)((uint32)0U << 2U)  /* SCS[2] */
                     | (uint32)((uint32)1U << 3U)  /* SCS[3] */
                     | (uint32)((uint32)0U << 4U)  /* SCS[4] */
-                    | (uint32)((uint32)0U << 5U)  /* SCS[5] */
+                    | (uint32)((uint32)1U << 5U)  /* SCS[5] */
                     | (uint32)((uint32)1U << 8U)  /* ENA */
                     | (uint32)((uint32)1U << 9U)  /* CLK */
                     | (uint32)((uint32)1U << 10U)  /* SIMO[0] */
@@ -347,7 +347,7 @@ void spiInit(void)
 
     /** - SPI3 Port output values */
     spiREG3->PC3 =    (uint32)((uint32)1U << 0U)  /* SCS[0] */
-                    | (uint32)((uint32)0U << 1U)  /* SCS[1] */
+                    | (uint32)((uint32)1U << 1U)  /* SCS[1] */
                     | (uint32)((uint32)1U << 2U)  /* SCS[2] */
                     | (uint32)((uint32)1U << 3U)  /* SCS[3] */
                     | (uint32)((uint32)1U << 4U)  /* SCS[4] */
@@ -1042,11 +1042,12 @@ void mibspi3HighInterruptLevel(void)
     uint32 flags = (spiREG3->FLG & 0x0000FFFFU) & (~spiREG3->LVL & 0x035FU);
     uint32 vec = spiREG3->INTVECT0;
     BaseType_t ifTaskSChed = 0;
-
+    spiREG1->PC3 = 0xFF;
 
 #if MODE == MODE_INTERRUPT
     if(vec == 0x24)
     {
+        //spiREG1->PC3 = 0xFF;
         xTaskNotifyFromISR(spiFilesTask, spiREG3->BUF,eSetValueWithOverwrite ,&ifTaskSChed );
         portYIELD_FROM_ISR(ifTaskSChed);
     }

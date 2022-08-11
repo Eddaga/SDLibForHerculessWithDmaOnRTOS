@@ -371,6 +371,12 @@ static variables must be declared volatile. */
 
 PRIVILEGED_DATA TCB_t * volatile pxCurrentTCB = NULL;
 
+//
+TCB_t tempTCB;
+
+unsigned char  * ptrPxCurrentTCB = &pxCurrentTCB;
+unsigned int tOffset = ((unsigned int)(&tempTCB.uxPriority))-((unsigned int)(&tempTCB));
+
 /* Lists for ready and blocked tasks. --------------------*/
 PRIVILEGED_DATA static List_t pxReadyTasksLists[ configMAX_PRIORITIES ];/*< Prioritised ready tasks. */
 PRIVILEGED_DATA static List_t xDelayedTaskList1;						/*< Delayed tasks. */
@@ -2758,12 +2764,14 @@ BaseType_t xSwitchRequired = pdFALSE;
 #endif /* configUSE_APPLICATION_TASK_TAG */
 /*-----------------------------------------------------------*/
 #include "spi.h"
-	kyuTraceTaskSwitchedIn()
-	{
-	    spiREG1->PC3 = 0xFF;
-	    spiREG1->PC3 = ~(1 << (1 + (int)pxCurrentTCB->uxPriority));
-	    //UARTprintf("currentTaskHandle = %d\r\n",(int)pxCurrentTCB->uxPriority);
-	}
+
+void kyuTraceTaskSwitchedIn()
+{
+    spiREG1->PC3 = 0xFF;
+    spiREG1->PC3 = ~(1 << (1 + (int)pxCurrentTCB->uxPriority));
+    //UARTprintf("currentTaskHandle = %d\r\n",(int)pxCurrentTCB->uxPriority);
+}
+
 void vTaskSwitchContext( void )
 {
 	if( uxSchedulerSuspended != ( UBaseType_t ) pdFALSE )

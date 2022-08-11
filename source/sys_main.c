@@ -81,7 +81,7 @@ extern int speedTestClose();
 
 void vSDTimerTask(void *pvParameters)
 {
-
+    spiREG3->PC3 &= ~(0x02);
     while(1)
     {
 
@@ -112,7 +112,7 @@ void vSDTestTask(void *pvParameters)
 {
     int i  = 0;
     unsigned int writtenBytesNum;
-    TickType_t start, done;
+    //fTickType_t start, done;
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = 50;
 
@@ -121,14 +121,15 @@ void vSDTestTask(void *pvParameters)
 
 
 
+
     speedTestOpen(path,NONAPPENDMODE);
-    spiREG3->PC3 &= ~(0x02);
+
 
 
     xLastWakeTime = xTaskGetTickCount();
 
 
-    while(i < 5)
+    while(i < 4)
     {
         //start = xTaskGetTickCount();
 
@@ -142,12 +143,14 @@ void vSDTestTask(void *pvParameters)
 
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
-    spiREG3->PC3 |= 0x02;
+
+
+
 
 
     speedTestClose();
-    spiREG3->PC3 &= ~(0x02);
-
+    //spiREG3->PC3 &= ~(0x02);
+    spiREG3->PC3 |= 0x02;
     //Cmd_ls(dummy1,dummyargv);
     while(1);
 
@@ -188,6 +191,8 @@ int main(void)
 
     UARTprintf("System Ready to Start!\r\n");
 
+
+
     xTaskCreate(vSDTimerTask,"SDTimerTask",configMINIMAL_STACK_SIZE,NULL,3,&xSDTimerTaskHandle);
     #if MODE != MODE_DMA
     //xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,3,&xSDTestTaskHandle);
@@ -195,13 +200,13 @@ int main(void)
     #else
     xTaskCreate(vSDTestTask,"SDTestTask",configMINIMAL_STACK_SIZE,NULL,1 | portPRIVILEGE_BIT ,&xSDTestTaskHandle);  // DMA REGs need privilege mode.
     #endif
-    spiREG3->PC3 |= 0x02;
+    //spiREG3->PC3 |= 0x02;
     vTaskStartScheduler();
 
     while(1);
 /* USER CODE END */
 
-    //return 0;
+    return 0;
 }
 
 

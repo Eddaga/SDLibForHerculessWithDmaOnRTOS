@@ -249,8 +249,10 @@ void spiEndNotification(spiBASE_t *spi);
 
 /**@}*/
 /* USER CODE BEGIN (1) */
+
 #include "FreeRTOS.h"
 #include "os_task.h"
+
 void setTaskHandlerForISR(xTaskHandle A);
 #define SINGLEMODE 0
 #define LargeRxMode 1

@@ -258,7 +258,7 @@ void power_on (void)
      * This doesn't really turn the power on, but initializes the
      * SPI port and pins needed to talk to the card.
      */
-	spiInit();
+	//spiInit();
 	kyuSpiInit();
     /* Set DI and CS high and apply more than 74 pulses to SCLK for the card */
     /* to be able to accept a native command. */

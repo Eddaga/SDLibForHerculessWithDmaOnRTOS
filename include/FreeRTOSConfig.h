@@ -95,7 +95,8 @@
 #define configUSE_FPU							1
 #define configUSE_IDLE_HOOK			  0
 #define configUSE_TICK_HOOK			  0
-#define configUSE_TRACE_FACILITY	  0
+//#define configUSE_TRACE_FACILITY	  0
+#define configUSE_TRACE_FACILITY      0 // kyu 3
 #define configUSE_16_BIT_TICKS		  0
 #define configCPU_CLOCK_HZ			  ( ( unsigned portLONG ) 110000000 ) /* Timer clock. */
 #define configTICK_RATE_HZ			  ( ( TickType_t ) 1000 )
@@ -114,7 +115,7 @@
 #define configSUPPORT_DYNAMIC_ALLOCATION		1
 
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS 1
-#define configUSE_TICKLESS_IDLE					1
+#define configUSE_TICKLESS_IDLE					0
 
 /* USER CODE BEGIN (2) */
 /* USER CODE END */
@@ -153,7 +154,7 @@
 #define INCLUDE_xTaskAbortDelay             1
 #define INCLUDE_eTaskGetState               1
 #define INCLUDE_xTaskGetHandle              1
-#define INCLUDE_xTaskGetIdleTaskHandle      1
+#define INCLUDE_xTaskGetIdleTaskHandle      0
 
 /* USER CODE BEGIN (4) */
 #define INCLUDE_xTaskGetCurrentTaskHandle   1

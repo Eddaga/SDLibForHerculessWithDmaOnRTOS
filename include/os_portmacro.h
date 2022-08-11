@@ -159,7 +159,17 @@ extern void vPortYield( void );
 #define portSYS_SSIR1_SSKEY			( 0x7500UL )
 
 #define portYIELD_WITHIN_API()		{ portSYS_SSIR1_REG = portSYS_SSIR1_SSKEY;  asm( " DSB " ); asm( " ISB " ); }
-#define portYIELD_FROM_ISR( x )		if( x != pdFALSE ){ portSYS_SSIR1_REG = portSYS_SSIR1_SSKEY;  ( void ) portSYS_SSIR1_REG; }
+
+//#include "spi.h"
+extern unsigned char  * ptrPxCurrentTCB;
+extern unsigned int tOffset;
+
+#define kyuSPIRegPC1 *((volatile int*)0xFFF7F420U)
+
+// (*((unsigned long *)((((unsigned int)(*ptrPxCurrentTCB))+tOffset)))) //->Priority value.
+// kyu *(unsigned int*)( (unsigned int)(ptrPxCurrentTCB)+tOffset )
+#define portYIELD_FROM_ISR( x )		if( x != pdFALSE ){ ; portSYS_SSIR1_REG = portSYS_SSIR1_SSKEY;  ( void ) portSYS_SSIR1_REG; } else if(ptrPxCurrentTCB != 0){ kyuSPIRegPC1 = spiREG1->PC3 = ~( 1 << ( 1 + (int)( *(unsigned int*)( (unsigned int)(ptrPxCurrentTCB)+tOffset )  ) ));}
+//(int)pxCurrentTCB->uxPriority));//~(0x02);}//~(1 << (1 + (*((unsigned long *)((((unsigned int)(*ptrPxCurrentTCB))+tOffset))))   ));}
 
 #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
 	#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
